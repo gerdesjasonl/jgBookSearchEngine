@@ -1,14 +1,17 @@
-import { User } from '../models/User';
+import { GraphQLError } from 'graphql';
 
-// TODO: Add a comment describing the functionality of this expression
-// A query awaits for the search and return of entry in users db.
 const resolvers = {
   Query: {
-    users: async () => {
-      // TODO: Add a comment describing the functionality of this statement
-      return await User.find({});
+    getUserProfile: (_: any, __: any, context: { user?: any }) => {
+      if (!context.user) {
+        throw new GraphQLError('Unauthorized', {
+          extensions: { code: 'UNAUTHORIZED' },
+        });
+      }
+      return context.user;
     },
   },
 };
+
 
 export default resolvers;
