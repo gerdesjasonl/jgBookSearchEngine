@@ -9,5 +9,5 @@ export interface AuthUser {
 export interface GraphQLContext {
   req: Request;
   res: Response;
-  user?: AuthUser | null;
+  user: {_id: string; username: string; email: string} | null;
 }

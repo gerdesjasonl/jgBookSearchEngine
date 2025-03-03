@@ -20,7 +20,7 @@ interface BookInput {
 const resolvers = {
   // This query will get user profile
   Query: {
-    getUserProfile: async (_: any, { id, username }: { id?: string; username?: string}, context: GraphQLContext) => {
+    me: async (_: any, { id, username }: { id?: string; username?: string}, context: GraphQLContext) => {
       if (!context.user && !id && !username) {
         throw new Error('Unauthorized');
       }
@@ -38,7 +38,7 @@ const resolvers = {
   Mutation: {
 
     // This mutation creates a new user
-    createUser: async (_: any, { input }: {input: UserInput}) => {
+    addUser: async (_: any, { input }: {input: UserInput}) => {
       const user = await User.create(input);
 
       if (!user) {
@@ -49,7 +49,7 @@ const resolvers = {
     },
 
     // this mutation logs the user in
-    loginUser: async (_: any, { input }: { input: UserInput }) => {
+    login: async (_: any, { input }: { input: UserInput }) => {
       const user = await User.findOne({
         $or: [{ username: input.username }, { email: input.email }],
       });
@@ -83,7 +83,7 @@ const resolvers = {
     },
 
     // This mutation should delete a book from the user's book list
-    deleteBook: async (_: any, { bookId }: { bookId: string }, context: GraphQLContext) => {
+    removeBook: async (_: any, { bookId }: { bookId: string }, context: GraphQLContext) => {
       if (!context.user) {
         throw new Error('Authentication required.');
       }

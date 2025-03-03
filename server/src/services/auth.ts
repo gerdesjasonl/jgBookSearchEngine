@@ -1,8 +1,8 @@
-import type { Request } from 'express';
 import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
-
 import dotenv from 'dotenv';
+import type { Request } from 'express';
+
 dotenv.config();
 
 interface JwtPayload {

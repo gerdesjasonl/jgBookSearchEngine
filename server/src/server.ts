@@ -1,7 +1,4 @@
 import dotenv from 'dotenv';
-
-dotenv.config()
-
 import express from 'express';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
@@ -11,6 +8,7 @@ import jwt, {JwtPayload } from 'jsonwebtoken';
 import User from './models/User';
 import mongoose from 'mongoose';
 
+dotenv.config()
 
 const app = express();
 
@@ -23,7 +21,8 @@ app.use(
   '/graphql',
   expressMiddleware(server, {
     context: async ({ req, res }): Promise<GraphQLContext> => {
-      const token = req.headers.authorization || '';
+      const authHeader = req.headers.authorization || '';
+      const token = authHeader.split(' ')[1] || '';
       let user = null;
 
       if (token) {
