@@ -1,18 +1,52 @@
 import gql from 'graphql-tag';
 
 const typeDefs = gql`
-  # TODO: Add a comment describing the functionality of this statement
-  #  Thid established a type def of User and Query.
+
   type User {
-    _id: ID
-    name: String
-    building: String
-    creditHours: Int
+    _id: ID!
+    username: String!
+    email: String!
+    savedBooks: [Book]
   }
 
-  # TODO: Add a comment describing the functionality of this statement
+  type Book {
+    bookId: ID!
+    title: String!
+    authors: [String]
+  }
+
+  type Auth {
+    token: String!
+    user: User!
+  }
+
   type Query {
-    classes: [Class]
+    getSingleUser(id: ID, username: String): User
+  }
+
+  type Mutation {
+    createUser(input: CreateUserInput!): Auth
+    login(input: LoginInput!): Auth
+    saveBook(book: BookInput!): User
+    deleteBook(bookId: ID!): User
+  }
+
+  input CreateUserInput {
+    username: String!
+    email: String!
+    password: String!
+  }
+
+  input LoginInput {
+    username: String
+    email: String
+    password: String!
+  }
+
+  input BookInput {
+    bookId: ID!
+    title: String!
+    authors: [String]
   }
 `;
 
