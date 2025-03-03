@@ -1,4 +1,5 @@
-import { Schema, model, type Document } from 'mongoose';
+import { type Document } from 'mongoose';
+import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
 // import schema from Book.js
@@ -6,7 +7,7 @@ import bookSchema from './Book.js';
 import type { BookDocument } from './Book.js';
 
 export interface UserDocument extends Document {
-  id: string;
+  id: mongoose.Types.ObjectId;
   username: string;
   email: string;
   password: string;
@@ -15,7 +16,7 @@ export interface UserDocument extends Document {
   bookCount: number;
 }
 
-const userSchema = new Schema<UserDocument>(
+const userSchema = new mongoose.Schema<UserDocument>(
   {
     username: {
       type: String,
@@ -63,6 +64,6 @@ userSchema.virtual('bookCount').get(function () {
   return this.savedBooks.length;
 });
 
-const User = model<UserDocument>('User', userSchema);
+const User = mongoose.model<UserDocument>('User', userSchema);
 
 export default  User;
