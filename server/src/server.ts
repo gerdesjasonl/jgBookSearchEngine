@@ -1,13 +1,14 @@
 import dotenv from 'dotenv';
 import express from 'express';
-import db from './config/connection';
+import db from './config/connection.js';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
-import { GraphQLContext } from './utils/context';
-import { typeDefs, resolvers } from './schemas/index';
+import { GraphQLContext } from './utils/context.js';
+import { typeDefs, resolvers } from './schemas/index.js';
 import jwt, {JwtPayload } from 'jsonwebtoken';
-import User from './models/User';
+import User from './models/User.js';
 import mongoose from 'mongoose';
+
 
 dotenv.config()
 

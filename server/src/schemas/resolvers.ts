@@ -18,6 +18,12 @@ interface BookInput {
 }
 
 const resolvers = {
+  User: {
+    bookCount: (parent: { savedBooks: any[] }) => {
+      return parent.savedBooks.length;
+    }
+  },
+
   // This query will get user profile
   Query: {
     me: async (_: any, { id, username }: { id?: string; username?: string}, context: GraphQLContext) => {
