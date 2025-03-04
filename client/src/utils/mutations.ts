@@ -14,16 +14,14 @@ export const LOGIN_USER = gql`
     }`;
 
 export const ADD_USER = gql`
-    mutation addUser($input: UserInput!) {
-        addUser(input: $input) {
-            token
-            user {
-                _id
-                username
-                email
-            }
-        }
-    }`;
+    mutation Mutation($input: CreateUserInput!) {
+  addUser(input: $input) {
+    user {
+      username
+      email
+    }
+  }
+}`;
 
 export const SAVE_BOOK = gql`
     mutation saveBook($book: BookInput!) {
