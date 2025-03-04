@@ -56,8 +56,9 @@ const resolvers = {
 
     // this mutation logs the user in
     login: async (_: any, { input }: { input: UserInput }) => {
+      console.log(input);
       const user = await User.findOne({
-        $or: [{ username: input.username }, { email: input.email }],
+         email: input.email
       });
 
       if (!user) {
