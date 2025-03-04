@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
 
 export interface AuthUser {
   _id: string;
@@ -15,6 +14,4 @@ export interface GraphQLContext {
       username: string;
       email: string;
     } | null;
-    primaryConnection: mongoose.Connection;
-    secondaryConnection: mongoose.Connection;
   }

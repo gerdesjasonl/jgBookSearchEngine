@@ -17,6 +17,7 @@ import { saveBookIds, getSavedBookIds } from '../utils/localStorage';
 import type { Book } from '../models/Book';
 import type { GoogleAPIBook } from '../models/GoogleAPIBook';
 
+
 const SearchBooks = () => {
   // create state for holding returned google api data
   const [searchedBooks, setSearchedBooks] = useState<Book[]>([]);
@@ -72,15 +73,16 @@ const SearchBooks = () => {
     const bookToSave: Book = searchedBooks.find((book) => book.bookId === bookId)!;
 
     // get token
+    
     const token = Auth.loggedIn() ? Auth.getToken() : null;
-
+    console.log(token)
     if (!token) {
       return false;
     }
 
     try {
       const { data } = await saveBookMutation({
-        variables: { bookData: bookToSave },
+        variables: { book: bookToSave },
       });
 
       if (!data) {

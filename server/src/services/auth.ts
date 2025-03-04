@@ -28,7 +28,7 @@ export const authenticateToken = (req: Request) => {
   const authHeader = req.headers.authorization;
   const token = extractTokenFromHeader(authHeader);
 
-  if (!authHeader) {
+  if (!token) {
     throw new GraphQLError('Unauthorized', {
       extensions: {code: 'UNAUTHORIZED'},
     });
@@ -37,11 +37,6 @@ export const authenticateToken = (req: Request) => {
     const secretKey = process.env.JWT_SECRET_KEY || '';
 
     try {
-      if (!token) {
-        throw new GraphQLError('Unauthorized', {
-          extensions: { code: 'UNAUTHORIZED' },
-        });
-      }
       const decoded = jwt.verify(token, secretKey) as unknown as JwtPayload;
       return decoded;
     } catch (err) {

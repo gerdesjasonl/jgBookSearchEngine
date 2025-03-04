@@ -50,6 +50,9 @@ const typeDefs = gql`
     bookId: ID!
     title: String!
     authors: [String]
+    description: String
+    image: String
+    link: String
   }
 `;
 

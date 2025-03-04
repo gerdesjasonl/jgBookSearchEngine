@@ -1,4 +1,4 @@
-import { GraphQLContext } from '../utils/context'  ;
+
 import User from '../models/User.js';
 import { signToken } from '../services/auth.js'
 
@@ -26,12 +26,12 @@ const resolvers = {
 
   // This query will get user profile
   Query: {
-    me: async (_: any, { id, username }: { id?: string; username?: string}, context: GraphQLContext) => {
-      if (!context.user && !id && !username) {
+    me: async (_: any, { id, username }: { id?: string; username?: string}) => {
+      if (!id && !username) {
         throw new Error('Unauthorized');
       }
       const foundUser = await User.findOne({
-        $or: [{ _id: id || context.user?._id }, { username }],
+        $or: [{ _id: id }, { username }],
       });
 
       if (!foundUser) {
@@ -75,28 +75,22 @@ const resolvers = {
     },
 
     // This should save a book to the user's book list
-    saveBook: async (_: any, { book }: { book: BookInput }, context: GraphQLContext) => {
-      if (!context.user) {
-        throw new Error('Authentication required.');
-      }
+    saveBook: async (_: any, { bookId }: { bookId: BookInput }) => {
 
       const updatedUser = await User.findOneAndUpdate(
-        { _id: context.user._id },
-        { $addToSet: { savedBooks: book } },
+        { _id: bookId },
+        { $addToSet: { savedBooks: bookId } },
         { new: true, runValidators: true }
       );
 
-      return updatedUser;
+      return updatedUser?.savedBooks;
     },
 
     // This mutation should delete a book from the user's book list
-    removeBook: async (_: any, { bookId }: { bookId: string }, context: GraphQLContext) => {
-      if (!context.user) {
-        throw new Error('Authentication required.');
-      }
-
+    removeBook: async (_: any, { bookId }: { bookId: string }) => {
+    
       const updatedUser = await User.findOneAndUpdate(
-        { _id: context.user._id },
+        { _id: bookId },
         { $pull: { savedBooks: { bookId } } },
         { new: true }
       );
