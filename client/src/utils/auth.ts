@@ -10,7 +10,8 @@ interface UserToken {
 class AuthService {
   // get user data
   getProfile() {
-    return jwtDecode(this.getToken() || '');
+    const token = this.getToken();
+    return token ? jwtDecode<UserToken>(token) : null;
   }
 
   // check if user's logged in
@@ -24,14 +25,11 @@ class AuthService {
   isTokenExpired(token: string) {
     try {
       const decoded = jwtDecode<UserToken>(token);
-      if (decoded.exp < Date.now() / 1000) {
-        return true;
-      } 
-      
-      return false;
+      return decoded.exp < Date.now() / 1000; 
     } catch (err) {
-      return false;
-    }
+      console.error("Invalid token", err);
+      return true;
+      } 
   }
 
   getToken() {

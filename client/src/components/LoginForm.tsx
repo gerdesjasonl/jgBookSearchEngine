@@ -6,12 +6,17 @@ import { Form, Button, Alert } from 'react-bootstrap';
 
 import { LOGIN_USER } from '../utils/mutations';
 import Auth from '../utils/auth';
-import type { User } from '../models/User';
+// import type { User } from '../models/User';
+
+type LoginFormData = {
+  email: string;
+  password: string;
+};
 
 // biome-ignore lint/correctness/noEmptyPattern: <explanation>
 const LoginForm = ({handleModalClose}: { handleModalClose: () => void }) => {
-  const [userFormData, setUserFormData] = useState<User>({ username: '', email: '', password: '', savedBooks: [] });
-  const [validated] = useState(false);
+  const [userFormData, setUserFormData] = useState<LoginFormData>({ email: '', password: ''});
+  const [validated, setValidated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
   const [loginUser] = useMutation(LOGIN_USER);
@@ -23,13 +28,12 @@ const LoginForm = ({handleModalClose}: { handleModalClose: () => void }) => {
 
   const handleFormSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+    setValidated(true);
     // check if form has everything (as per react-bootstrap docs)
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
-      event.preventDefault();
       event.stopPropagation();
-      return;
+      return
     }
 
     try {
@@ -45,13 +49,6 @@ const LoginForm = ({handleModalClose}: { handleModalClose: () => void }) => {
       console.error(err);
       setShowAlert(true);
     }
-
-    setUserFormData({
-      username: '',
-      email: '',
-      password: '',
-      savedBooks: [],
-    });
   };
 
   return (

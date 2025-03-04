@@ -8,10 +8,19 @@ import { typeDefs, resolvers } from './schemas/index.js';
 import jwt, {JwtPayload } from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
+import cors from 'cors';
 
-dotenv.config()
+dotenv.config();
 
-const server = new ApolloServer({
+const app = express();
+
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Auhtorization']
+}));
+
+  const server = new ApolloServer({
   typeDefs, 
   resolvers,
 });
@@ -22,7 +31,6 @@ const startApolloServer = async () => {
   const { primaryConnection, secondaryConnection } = await db();
 
   const PORT = process.env.PORT || 3001;
-  const app = express();
 
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
@@ -35,7 +43,7 @@ const startApolloServer = async () => {
 
       if (token) {
         try {
-          const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+          const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY!) as JwtPayload;
           const userModel = secondaryConnection.model('User', new mongoose.Schema({ username: String, email: String }));
           
           const userDoc = await userModel.findById(decoded._id);
