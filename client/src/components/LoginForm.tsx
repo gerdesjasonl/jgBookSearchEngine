@@ -8,14 +8,14 @@ import { LOGIN_USER } from '../utils/mutations';
 import Auth from '../utils/auth';
 // import type { User } from '../models/User';
 
-type LoginFormData = {
-  email: string;
-  password: string;
-};
+// type LoginFormData = {
+//   email: string;
+//   password: string;
+// };
 
 // biome-ignore lint/correctness/noEmptyPattern: <explanation>
-const LoginForm = ({handleModalClose}: { handleModalClose: () => void }) => {
-  const [userFormData, setUserFormData] = useState<LoginFormData>({ email: '', password: ''});
+const LoginForm = ({}: { handleModalClose: () => void }) => {
+  const [userFormData, setUserFormData] = useState({ email: '', password: ''});
   const [validated, setValidated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
@@ -33,24 +33,28 @@ const LoginForm = ({handleModalClose}: { handleModalClose: () => void }) => {
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.stopPropagation();
-      return
-    }
-
-    try {
-      const { data } = await loginUser({ variables: { email: userFormData.email, password: userFormData.password} });
-
-      if (data?.login?.token) {
-      Auth.login(data.login.token);
-      handleModalClose();
+      return;
     } else {
-      throw new Error( 'Login failed' );
+    try {
+      const { data } = await loginUser({ variables: { input: userFormData } });
+
+    if (!data) {
+        throw new Error('Something went wrong!');
     }
+      
+    Auth.login(data.loginUser.token);
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       setShowAlert(true);
     }
-  };
+  }
+    setUserFormData({
+    email: '',
+    password: '',
+  });
 
+  };
+  
   return (
     <>
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>

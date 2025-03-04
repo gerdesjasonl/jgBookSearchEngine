@@ -11,7 +11,12 @@ class AuthService {
   // get user data
   getProfile() {
     const token = this.getToken();
-    return token ? jwtDecode<UserToken>(token) : null;
+    try {
+      return token ? jwtDecode<UserToken>(token) : null;
+    } catch (err) {
+      console.error("Invalid token", err);
+      return null;
+    }
   }
 
   // check if user's logged in
@@ -25,7 +30,9 @@ class AuthService {
   isTokenExpired(token: string) {
     try {
       const decoded = jwtDecode<UserToken>(token);
-      return decoded.exp < Date.now() / 1000; 
+      const currentTime = Date.now() / 1000;
+      if (decoded.exp <  currentTime) {
+      return true;}
     } catch (err) {
       console.error("Invalid token", err);
       return true;
