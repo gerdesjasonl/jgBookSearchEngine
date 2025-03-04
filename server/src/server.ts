@@ -6,7 +6,6 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { GraphQLContext } from './utils/context.js';
 import { typeDefs, resolvers } from './schemas/index.js';
 import jwt, {JwtPayload } from 'jsonwebtoken';
-import User from './models/User.js';
 import mongoose from 'mongoose';
 
 
@@ -20,7 +19,7 @@ const server = new ApolloServer({
 const startApolloServer = async () => {
 
   await server.start();
-  await db();
+  const { primaryConnection, secondaryConnection } = await db();
 
   const PORT = process.env.PORT || 3001;
   const app = express();
@@ -37,13 +36,15 @@ const startApolloServer = async () => {
       if (token) {
         try {
           const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-          const userDoc = await User.findById(decoded._id);
+          const userModel = secondaryConnection.model('User', new mongoose.Schema({ username: String, email: String }));
+          
+          const userDoc = await userModel.findById(decoded._id);
 
-          if (userDoc && userDoc._id instanceof mongoose.Types.ObjectId) {
+          if (userDoc) {
             user = {
               _id: userDoc._id.toString(), 
-              username: userDoc.username, 
-              email: userDoc.email, 
+              username: userDoc.username || '', 
+              email: userDoc.email || '', 
             };
           }
         } catch (err) {
@@ -51,7 +52,7 @@ const startApolloServer = async () => {
         }
       }
 
-      return { req, res, user };
+      return { req, res, user, primaryConnection, secondaryConnection};
     }}));
   app.listen(PORT, () => {
     console.log(`API server running on port ${PORT}!`);

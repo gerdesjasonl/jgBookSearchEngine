@@ -3,21 +3,39 @@ import mongoose from 'mongoose';
 
 dotenv.config();
 
-const MONGODB_URI = process.env.MONGODB_URI || '';
+const primaryUri = process.env.MONGODB_URI_PRIMARY as string;
 
-const db = async (): Promise<typeof mongoose.connection> => {
-  if(!MONGODB_URI) {
-    console.error('MongoDB URI is missing');
-    throw new Error('MongoDB URI is required');
-  }
-  
+const secondaryUri = process.env.MONGODB_URI_SECONDARY as string;
+
+const db = async () => {
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('Database connected.');
-    return mongoose.connection;
+    // Connect to the primary database
+    const primaryConnection = await mongoose.createConnection(primaryUri);
+
+    // Connect to the secondary database
+    const secondaryConnection = await mongoose.createConnection(secondaryUri);
+
+    await Promise.all([
+      new Promise<void>((resolve, reject) => {
+        primaryConnection.once('connected', () => {
+          console.log('Connected to Primary Database');
+          resolve();
+        });
+        primaryConnection.on('error', reject);
+      }),
+      new Promise<void>((resolve, reject) => {
+        secondaryConnection.once('connected', () => {
+          console.log('Connected to Secondary Database');
+          resolve();
+        });
+        secondaryConnection.on('error', reject);
+      }),
+    ]);
+
+    return { primaryConnection, secondaryConnection };
   } catch (error) {
-    console.error('Database connection error:', error);
-    throw new Error('Database connection failed.');
+    console.error(' Error connecting to databases:', error);
+    process.exit(1);
   }
 };
 
