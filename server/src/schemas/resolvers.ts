@@ -40,16 +40,16 @@ const resolvers = {
 
       let decodedUser;
       try {
-        decodedUser = jwt.verify(token, jwtSecret);
+        decodedUser = jwt.verify(token, jwtSecret) as {userId: string};
       } catch (error) {
         throw new Error('Unauthorized');
       }
-      const userId = decodedUser;
+      const userId = decodedUser?.userId;
 
       if (!userId) {
         throw new Error('Unauthorized');
       }
-      const foundUser = await User.findOne({ _id: userId });
+      const foundUser = await User.findOne({ _id: userId});
 
       if (!foundUser) {
       throw new Error('Cannot find user');

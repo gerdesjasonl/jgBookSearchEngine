@@ -1,45 +1,45 @@
-import { useEffect } from 'react';
+// import { useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 import { GET_ME } from '../utils/queries';
 import { REMOVE_BOOK } from '../utils/mutations';
-import { getMe } from '../utils/API';
+// import { getMe } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 import type { Book } from '../models/Book';
 // import type { User } from '../models/User';
 
 const SavedBooks = () => {
-  const { loading, data } = useQuery(GET_ME);
-  const userData: { username?: string; savedBooks: Book[] } = data?.me || { savedBooks: []};
+  const { loading, data } = useQuery<{ me: {username?: string; savedBooks: Book[] } }>(GET_ME);
+  const userData = data?.me ?? { username: "", savedBooks: [] };
 
   // use this to determine if `useEffect()` hook needs to run again
-  const userDataLength = Object.keys(userData).length;
+  // const userDataLength = Object.keys(userData).length;
 
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const token = Auth.loggedIn() ? Auth.getToken() : null;
+  // useEffect(() => {
+  //   const getUserData = async () => {
+  //     try {
+  //       const token = Auth.loggedIn() ? Auth.getToken() : null;
 
-        if (!token) {
-          return false;
-        }
+  //       if (!token) {
+  //         return false;
+  //       }
 
-        const response = await getMe(token);
+  //       const response = await getMe(token);
 
-        if (!response.ok) {
-          throw new Error('something went wrong!');
-        }
+  //       if (!response.ok) {
+  //         throw new Error('something went wrong!');
+  //       }
 
-        // const user = await response.json();
-        // setUserData(user);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  //       // const user = await response.json();
+  //       // setUserData(user);
+  //     } catch (err) {
+  //       console.error(err);
+  //     }
+  //   };
 
-    getUserData();
-  }, [userDataLength]);
+  //   getUserData();
+  // }, [userDataLength]);
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const [ removeBook ] = useMutation(REMOVE_BOOK, {
@@ -49,7 +49,9 @@ const SavedBooks = () => {
           me(existingUserData = {}) {
             return {
               ...existingUserData,
-              savedBooks: removeBook.savedBooks,
+              savedBooks: existingUserData.savedBooks?.filter(
+                (book: Book) => book.bookId !== removeBook.bookId
+              ) || [],
             };
           },
         },
