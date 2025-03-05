@@ -1,6 +1,7 @@
 
 import User from '../models/User.js';
-import { signToken } from '../services/auth.js'
+import { signToken } from '../services/auth.js';
+import jwt from 'jsonwebtoken';
 
 interface UserInput {
   username?: string;
@@ -26,17 +27,34 @@ const resolvers = {
 
   // This query will get user profile
   Query: {
-    me: async (_: any, { id, username }: { id?: string; username?: string}) => {
-      if (!id && !username) {
+    me: async (_: any, __: any, context: any) => {
+      const token = context.req.headers['authorization']?.split(' ')[1];
+
+      if (!token) {
         throw new Error('Unauthorized');
       }
-      const foundUser = await User.findOne({
-        $or: [{ _id: id }, { username }],
-      });
+      const jwtSecret = process.env.JWT_SECRET_KEY;
+      if (!jwtSecret) {
+        throw new Error('JWT secret is not defined');
+      }
+
+      let decodedUser;
+      try {
+        decodedUser = jwt.verify(token, jwtSecret);
+      } catch (error) {
+        throw new Error('Unauthorized');
+      }
+      const userId = decodedUser;
+
+      if (!userId) {
+        throw new Error('Unauthorized');
+      }
+      const foundUser = await User.findOne({ _id: userId });
 
       if (!foundUser) {
-        throw new Error('Cannot find user');
+      throw new Error('Cannot find user');
       }
+
       return foundUser;
     },
   },

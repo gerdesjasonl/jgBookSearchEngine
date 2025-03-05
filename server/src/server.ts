@@ -13,6 +13,8 @@ import { typeDefs, resolvers } from './schemas/index.js';
 // import mongoose from 'mongoose';
 import path from 'path';
 
+
+
 // import cors from 'cors';
 
 dotenv.config();
