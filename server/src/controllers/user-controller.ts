@@ -51,7 +51,7 @@ export const saveBook = async (req: Request, res: Response) => {
   try {
     const updatedUser = await User.findOneAndUpdate(
       { _id: req.user._id },
-      { $addToSet: { savedBooks: req.body } },
+      { $addToSet: { savedBooks: req.params.bookId } },
       { new: true, runValidators: true }
     );
     return res.json(updatedUser);

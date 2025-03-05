@@ -12,6 +12,7 @@ import { typeDefs, resolvers } from './schemas/index.js';
 // import jwt, {JwtPayload } from 'jsonwebtoken';
 // import mongoose from 'mongoose';
 import path from 'path';
+import { authenticateToken } from './services/auth.js';
 
 
 
@@ -35,6 +36,7 @@ const app = express();
 const startApolloServer = async () => {
 
   await server.start();
+  await db();
   // const { primaryConnection, secondaryConnection } = await db();
 
  
@@ -42,7 +44,11 @@ const startApolloServer = async () => {
   app.use(express.urlencoded({ extended: false }));
   app.use(express.json());
 
-  app.use('/graphql', expressMiddleware(server as any));
+  app.use('/graphql', expressMiddleware(server as any,
+    {
+      context: authenticateToken as any
+    }
+  ));
   // , {
   //   context: async ({ req, res }): Promise<GraphQLContext> => {
   //     const authHeader = req.headers.authorization || '';
@@ -79,7 +85,7 @@ const startApolloServer = async () => {
     });
   }
   
-  db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+  // db.on('error', console.error.bind(console, 'MongoDB connection error:'));
   app.listen(PORT, () => {
     console.log(`API server running on port ${PORT}!`);
     console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);

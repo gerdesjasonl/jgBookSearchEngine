@@ -1,50 +1,77 @@
 import { GraphQLError } from 'graphql';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
-import type { Request } from 'express';
+// import type { Request } from 'express';
 
 dotenv.config();
 
-interface JwtPayload {
-  _id: unknown;
-  username: string;
-  email: string,
-}
+// interface JwtPayload {
+//   _id: unknown;
+//   username: string;
+//   email: string,
+// }
 
-// Helper function to extract the token from Authorization header
-const extractTokenFromHeader = (authHeader: string | undefined): string | null => {
-  if (!authHeader) return null;
+// // Helper function to extract the token from Authorization header
+// const extractTokenFromHeader = (authHeader: string | undefined): string | null => {
+//   if (!authHeader) return null;
 
-  // Ensure the header follows "Bearer <token>" format
-  const tokenParts = authHeader.split(' ');
-  if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
-    return null;
+//   // Ensure the header follows "Bearer <token>" format
+//   const tokenParts = authHeader.split(' ');
+//   if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+//     return null;
+//   }
+
+//   return tokenParts[1];
+// };
+
+export const authenticateToken = ({ req }: any) => {
+  // Allows token to be sent via req.body, req.query, or headers
+  let token = req.body.token || req.query.token || req.headers.authorization;
+
+  // If the token is sent in the authorization header, extract the token from the header
+  if (req.headers.authorization) {
+    token = token.split(' ').pop().trim();
   }
 
-  return tokenParts[1];
-};
-
-export const authenticateToken = (req: Request) => {
-  const authHeader = req.headers.authorization;
-  const token = extractTokenFromHeader(authHeader);
-
+  // If no token is provided, return the request object as is
   if (!token) {
-    throw new GraphQLError('Unauthorized', {
-      extensions: {code: 'UNAUTHORIZED'},
-    });
+    return req;
   }
 
-    const secretKey = process.env.JWT_SECRET_KEY || '';
+  // Try to verify the token
+  try {
+    const { data }: any = jwt.verify(token, process.env.JWT_SECRET_KEY || '', { maxAge: '2hr' });
+    // If the token is valid, attach the user data to the request object
+    req.user = data;
+  } catch (err) {
+    // If the token is invalid, log an error message
+    console.log('Invalid token');
+  }
 
-    try {
-      const decoded = jwt.verify(token, secretKey) as unknown as JwtPayload;
-      return decoded;
-    } catch (err) {
-      throw new GraphQLError('Forbidden', {
-        extensions: { code: 'FORBIDDEN' },
-      });
-    }
-  };
+  // Return the request object
+  return req;
+};
+// export const authenticateToken = (req: Request) => {
+//   const authHeader = req.headers.authorization;
+//   const token = extractTokenFromHeader(authHeader);
+
+//   if (!token) {
+//     throw new GraphQLError('Unauthorized', {
+//       extensions: {code: 'UNAUTHORIZED'},
+//     });
+//   }
+
+//     const secretKey = process.env.JWT_SECRET_KEY || '';
+
+//     try {
+//       const decoded = jwt.verify(token, secretKey) as unknown as JwtPayload;
+//       return decoded;
+//     } catch (err) {
+//       throw new GraphQLError('Forbidden', {
+//         extensions: { code: 'FORBIDDEN' },
+//       });
+//     }
+//   };
 
 export const signToken = (username: string, email: string, _id: string) => {
   const payload = { username, email, _id };
@@ -54,4 +81,11 @@ export const signToken = (username: string, email: string, _id: string) => {
   }
 
   return jwt.sign(payload, secretKey, { expiresIn: '1h' });
+};
+
+export class AuthenticationError extends GraphQLError {
+  constructor(message: string) {
+    super(message, undefined, undefined, undefined, ['UNAUTHENTICATED']);
+    Object.defineProperty(this, 'name', { value: 'AuthenticationError' });
+  }
 };

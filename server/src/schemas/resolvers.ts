@@ -1,11 +1,11 @@
 
 import User from '../models/User.js';
-import { signToken } from '../services/auth.js';
-import jwt from 'jsonwebtoken';
+import { signToken, AuthenticationError } from '../services/auth.js';
+// import jwt from 'jsonwebtoken';
 
 interface UserInput {
   username?: string;
-  email?: string;
+  email: string;
   password: string;
 }
 
@@ -27,36 +27,45 @@ const resolvers = {
 
   // This query will get user profile
   Query: {
-    me: async (_: any, __: any, context: any) => {
-      const token = context.req.headers['authorization']?.split(' ')[1];
-
-      if (!token) {
-        throw new Error('Unauthorized');
+    me: async (_parent: any, { email }: UserInput) => {
+      // If the user is authenticated, find and return the user's information along with their thoughts
+      
+      if (email) {
+        return User.findOne({ email });
       }
-      const jwtSecret = process.env.JWT_SECRET_KEY;
-      if (!jwtSecret) {
-        throw new Error('JWT secret is not defined');
-      }
-
-      let decodedUser;
-      try {
-        decodedUser = jwt.verify(token, jwtSecret) as {userId: string};
-      } catch (error) {
-        throw new Error('Unauthorized');
-      }
-      const userId = decodedUser?.userId;
-
-      if (!userId) {
-        throw new Error('Unauthorized');
-      }
-      const foundUser = await User.findOne({ _id: userId});
-
-      if (!foundUser) {
-      throw new Error('Cannot find user');
-      }
-
-      return foundUser;
+      // If the user is not authenticated, throw an AuthenticationError
+      throw new AuthenticationError('Could not authenticate user.');
     },
+    // me: async (_: any, __: any, context: any) => {
+    //   const token = context.req.headers['authorization']?.split(' ')[1];
+
+    //   if (!token) {
+    //     throw new Error('Unauthorized');
+    //   }
+    //   const jwtSecret = process.env.JWT_SECRET_KEY;
+    //   if (!jwtSecret) {
+    //     throw new Error('JWT secret is not defined');
+    //   }
+
+    //   let decodedUser;
+    //   try {
+    //     decodedUser = jwt.verify(token, jwtSecret) as {userId: string};
+    //   } catch (error) {
+    //     throw new Error('Unauthorized');
+    //   }
+    //   const userId = decodedUser?.userId;
+
+    //   if (!userId) {
+    //     throw new Error('Unauthorized');
+    //   }
+    //   const foundUser = await User.findOne({ _id: userId});
+
+    //   if (!foundUser) {
+    //   throw new Error('Cannot find user');
+    //   }
+
+    //   return foundUser;
+    // },
   },
 
   Mutation: {
