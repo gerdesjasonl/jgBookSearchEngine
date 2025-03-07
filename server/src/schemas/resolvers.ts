@@ -1,9 +1,10 @@
-
+import { ObjectId } from 'mongoose';
 import User from '../models/User.js';
 import { signToken, AuthenticationError } from '../services/auth.js';
 // import jwt from 'jsonwebtoken';
 
 interface UserInput {
+  id: ObjectId,
   username?: string;
   email: string;
   password: string;
@@ -27,15 +28,16 @@ const resolvers = {
 
   // This query will get user profile
   Query: {
-    me: async (_parent: any, { email }: UserInput) => {
+    me: async (_parent: any,_args: any, context: any) => {
+      console.log('Context:', context); // Debugging
       // If the user is authenticated, find and return the user's information along with their thoughts
-      
-      if (email) {
-        return User.findOne({ email });
+      if (!context.user) {
+        throw new AuthenticationError('Could not authenticate user.');
       }
-      // If the user is not authenticated, throw an AuthenticationError
-      throw new AuthenticationError('Could not authenticate user.');
+  
+      return User.findOne({ _id: context.user.id });
     },
+  
     // me: async (_: any, __: any, context: any) => {
     //   const token = context.req.headers['authorization']?.split(' ')[1];
 
@@ -102,22 +104,25 @@ const resolvers = {
     },
 
     // This should save a book to the user's book list
-    saveBook: async (_: any, { bookId }: { bookId: BookInput }) => {
-
+    saveBook: async (_: any, { bookId }: { bookId: BookInput }, context: any) => {
+      if (!context.user) {
+        throw new AuthenticationError('Could not authenticate user.');
+      }
+    
       const updatedUser = await User.findOneAndUpdate(
-        { _id: bookId },
+        { _id: context.user.id }, // use context.user.id for authentication
         { $addToSet: { savedBooks: bookId } },
         { new: true, runValidators: true }
       );
-
+    
       return updatedUser?.savedBooks;
     },
 
     // This mutation should delete a book from the user's book list
-    removeBook: async (_: any, { bookId }: { bookId: string }) => {
+    removeBook: async (_: any, { bookId }: { bookId: BookInput }, context: any) => {
     
       const updatedUser = await User.findOneAndUpdate(
-        { _id: bookId },
+        { _id: context.user.id },
         { $pull: { savedBooks: { bookId } } },
         { new: true }
       );

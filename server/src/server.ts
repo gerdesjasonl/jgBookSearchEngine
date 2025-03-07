@@ -9,10 +9,10 @@ import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
 // import { GraphQLContext } from './utils/context.js';
 import { typeDefs, resolvers } from './schemas/index.js';
-// import jwt, {JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 // import mongoose from 'mongoose';
 import path from 'path';
-import { authenticateToken } from './services/auth.js';
+import { authenticateToken, AuthenticationError } from './services/auth.js';
 
 
 
@@ -22,6 +22,25 @@ dotenv.config();
  const PORT = process.env.PORT || 3001;
 const app = express();
 
+const secret = process.env.JWT_SECRET || 'your_secret_key';
+
+export const context = ({ req }: any) => {
+  const token = req.headers.authorization?.split('Bearer ')[1] || null;
+  console.log('Received Token:', token); // Debugging
+
+  if (!token) {
+    throw new AuthenticationError('Missing token');
+  }
+
+  try {
+    const user = jwt.verify(token, secret);
+    console.log('Verified User:', user);
+    return { user };
+  } catch (err) {
+    console.error('JWT Verification Error:', err);
+    throw new AuthenticationError('Invalid token');
+  }
+};
 // app.use(cors({
 //   origin: 'http://localhost:3000',
 //   methods: ['GET', 'POST'],
