@@ -14,7 +14,7 @@ import { SAVE_BOOK } from '../utils/mutations';
 import Auth from '../utils/auth';
 import { searchGoogleBooks } from '../utils/API';
 import { saveBookIds } from '../utils/localStorage';
-import type { Book } from '../models/Book';
+import { Book } from '../models/Book';
 import type { GoogleAPIBook } from '../models/GoogleAPIBook';
 
 
@@ -84,13 +84,19 @@ const SearchBooks = () => {
     
     const token = Auth.loggedIn() ? Auth.getToken() : null;
     console.log(token)
+    console.log("Here is token:", token)
     if (!token) {
       return false;
     }
 
     try {
       const { data } = await saveBookMutation({
-        variables: { bookId: bookToSave.bookId },
+        variables: { book: {...bookToSave} },
+        context: {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       });
 
       if (!data) {

@@ -104,18 +104,18 @@ const resolvers = {
     },
 
     // This should save a book to the user's book list
-    saveBook: async (_: any, { bookId }: { bookId: BookInput }, context: any) => {
+    saveBook: async (_: any, { book }: { book: BookInput }, context: any) => {
       if (!context.user) {
         throw new AuthenticationError('Could not authenticate user.');
       }
     
       const updatedUser = await User.findOneAndUpdate(
         { _id: context.user._id },
-        { $addToSet: { savedBooks: bookId } },
+        { $addToSet: { savedBooks: book } },
         { new: true, runValidators: true }
       );
     
-      return updatedUser?.savedBooks;
+      return updatedUser;
     },
 
     // This mutation should delete a book from the user's book list
