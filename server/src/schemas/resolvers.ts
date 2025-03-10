@@ -79,7 +79,7 @@ const resolvers = {
       if (!user) {
         throw new Error('Error while creating user');
       }
-      const token = signToken(user.username as string, user.email as string, user._id as string);
+      const token = signToken(user._id as string, user.username as string, user.email as string);
       return { token, user };
     },
 
@@ -99,7 +99,7 @@ const resolvers = {
         throw new Error('Wrong password!');
       }
 
-      const token = signToken(user.username as string, user.email as string, user._id as string);
+      const token = signToken(user._id as string, user.username as string, user.email as string);
       return { token, user };
     },
 

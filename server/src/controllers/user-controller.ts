@@ -7,7 +7,7 @@ import { signToken } from '../services/auth.js';
 // get a single user by either their id or their username
 export const getSingleUser = async (req: Request, res: Response) => {
   const foundUser = await User.findOne({
-    $or: [{ _id: req.params._id }, { username: req.params.username }],
+    $or: [{ _id: req.params._id }, { email: req.params.email }],
   });
 
   if (!foundUser) {

@@ -35,7 +35,7 @@ export const SAVE_BOOK = gql`
       authors
       description
       image
-      link
+    #   link
     }
   }
 }`;
@@ -54,7 +54,7 @@ export const REMOVE_BOOK = gql`
                     authors
                     description
                     image
-                    link
+                    # link
                 }
             }
         }

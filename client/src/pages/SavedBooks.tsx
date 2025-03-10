@@ -7,39 +7,47 @@ import { REMOVE_BOOK } from '../utils/mutations';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 import type { Book } from '../models/Book';
+import { ReactElement, JSXElementConstructor, ReactNode, ReactPortal } from 'react';
 // import type { User } from '../models/User';
 
-const SavedBooks = () => {
-  const { loading, data } = useQuery<{ me: {username?: string; savedBooks: Book[] } }>(GET_ME);
-  const userData = data?.me ?? { username: "", savedBooks: [] };
+const savedBooks = () => {
+  const { loading, error, data } = useQuery(GET_ME);
+
+  // Check for loading or error states
+  // if (loading) return <h2>Loading...</h2>;
+  if (error) return <h2>Error fetching user data: {error.message}</h2>;
+
+  // Get the user data (including saved books)
+  const userData = data?.me ? data.me: {};
+
 
   // use this to determine if `useEffect()` hook needs to run again
   // const userDataLength = Object.keys(userData).length;
 
-  // useEffect(() => {
-  //   const getUserData = async () => {
-  //     try {
-  //       const token = Auth.loggedIn() ? Auth.getToken() : null;
+//   useEffect(() => {
+//     const getUserData = async () => {
+//       try {
+//         const token = Auth.loggedIn() ? Auth.getToken() : null;
 
-  //       if (!token) {
-  //         return false;
-  //       }
+//         if (!token) {
+//           return false;
+//         }
 
-  //       const response = await getMe(token);
+//         const response = await getMe(token);
 
-  //       if (!response.ok) {
-  //         throw new Error('something went wrong!');
-  //       }
+//         if (!response.ok) {
+//           throw new Error('something went wrong!');
+//         }
 
-  //       // const user = await response.json();
-  //       // setUserData(user);
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   };
-
-  //   getUserData();
-  // }, [userDataLength]);
+//         // const user = await response.json();
+//         // setUserData(user);
+//       } catch (err) {
+//         console.error(err);
+//       }
+//     };
+//     getUserData();
+//   },
+// );
 
   // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const [ removeBook ] = useMutation(REMOVE_BOOK, {
@@ -97,12 +105,12 @@ const SavedBooks = () => {
   if (loading) {
     return <h2>LOADING...</h2>;
   }
-
+console.log(userData)
   return (
     <>
       <div className='text-light bg-dark p-5'>
         <Container>
-          {userData.username ? (
+          {userData?.username ? (
             <h1>Viewing {userData.username}'s saved books!</h1>
           ) : (
             <h1>Viewing saved books!</h1>
@@ -111,14 +119,14 @@ const SavedBooks = () => {
       </div>
       <Container>
         <h2 className='pt-5'>
-          {userData.savedBooks.length
+          {userData?.savedBooks?.length
             ? `Viewing ${userData.savedBooks.length} saved ${
                 userData.savedBooks.length === 1 ? 'book' : 'books'
               }:`
             : 'You have no saved books!'}
         </h2>
         <Row>
-          {userData?.savedBooks?.map((book) => {
+          {userData?.savedBooks?.map((book: { bookId: string ; image: string | undefined; title: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; authors: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; description: string | number | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | null | undefined; }) => {
             return (
               <Col md='4' key={book.bookId}>
                 <Card key={book.bookId} border='dark'>
@@ -150,4 +158,4 @@ const SavedBooks = () => {
   );
 };
 
-export default SavedBooks;
+export default savedBooks;
