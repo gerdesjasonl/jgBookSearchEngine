@@ -6,7 +6,8 @@ dotenv.config();
 
 export const authenticateToken = ({ req }: any) => {
   // Allows token to be sent via req.body, req.query, or headers
-  let token = req.body.token || req.query.token || req.headers.authorization;
+  let token = req.headers.authorization;
+  console.log(token);
 
   // If the token is sent in the authorization header, extract the token from the header
   if (req.headers.authorization) {

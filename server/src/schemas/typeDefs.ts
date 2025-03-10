@@ -3,7 +3,7 @@ import gql from 'graphql-tag';
 const typeDefs = gql`
 
   type User {
-    _id: ID!
+    _id: String!
     username: String
     email: String!
     bookCount: Int
@@ -11,7 +11,7 @@ const typeDefs = gql`
   }
 
   type Book {
-    bookId: ID!
+    bookId: String!
     title: String!
     authors: [String]
     description: String
@@ -20,7 +20,7 @@ const typeDefs = gql`
   }
 
   type Auth {
-    token: ID!
+    token: String!
     user: User
   }
 
@@ -32,7 +32,7 @@ const typeDefs = gql`
     addUser(input: CreateUserInput!): Auth
     login(input: LoginInput!): Auth
     saveBook(book: BookInput!): User
-    removeBook(bookId: ID!): User
+    removeBook(bookId: String!): User
   }
 
   input CreateUserInput {
@@ -47,7 +47,7 @@ const typeDefs = gql`
   }
 
   input BookInput {
-    bookId: ID!
+    bookId: String!
     title: String!
     authors: [String]
     description: String

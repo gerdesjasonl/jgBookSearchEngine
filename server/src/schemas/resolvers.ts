@@ -35,7 +35,7 @@ const resolvers = {
         throw new AuthenticationError('Could not authenticate user.');
       }
   
-      return User.findOne({ _id: context.user.id });
+      return User.findOne({ _id: context.user._id });
     },
   
     // me: async (_: any, __: any, context: any) => {
@@ -110,7 +110,7 @@ const resolvers = {
       }
     
       const updatedUser = await User.findOneAndUpdate(
-        { _id: context.user.id }, // use context.user.id for authentication
+        { _id: context.user._id },
         { $addToSet: { savedBooks: bookId } },
         { new: true, runValidators: true }
       );
@@ -122,7 +122,7 @@ const resolvers = {
     removeBook: async (_: any, { bookId }: { bookId: BookInput }, context: any) => {
     
       const updatedUser = await User.findOneAndUpdate(
-        { _id: context.user.id },
+        { _id: context.user._id },
         { $pull: { savedBooks: { bookId } } },
         { new: true }
       );
