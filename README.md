@@ -20,7 +20,7 @@
         <a href="#questions">Questions</a>
     </ul>
     <h3 style="background-color: black;text-align: center;color:azure;" id="installation">Installation Instructions</h3>
-    <p id="installEntry">Open a terminal on the root folder and run 1. npm run build 3. npm run start:dev - this step will open the search in the browser</p>
+    <p id="installEntry">This application is deployed live here at <a href = "https://jgbooksearchenginerefactor.onrender.com"> this link </a></p>
     <h3 style="background-color: black;text-align: center;color:azure;" id="usage">Usage Information</h3>
     <p id="usageEntry">A video demonstration can be found here: <a href = "https://www.loom.com/share/dc8526652d244dabbb65c92010125283?sid=d3d424f7-fc3a-45d0-bfb8-917d75ed969d">jgBookSearchEngine(GraphQL Refactor) Demo Video</a></p>
     <h3 style="background-color: black;text-align: center;color:azure;" id="license">License</h3>
